@@ -1,13 +1,15 @@
-# AIMH at SemEval-2021 Task 6: Multimodal Classification Using an Ensemble of Transformer Models
+# APCL: Multimodal Propaganda Detection via Anti-persuasion Prompt Enhanced Contrastive Learning
 
-This repo contains the code for replicating our system for the SemEval-2021 Task 6 challenge: [Detection of Persuasive Techniques in Texts and Images](https://propaganda.math.unipd.it/semeval2021task6/)
+This repo contains the code for ICASSP 2023 paper **Multimodal Propaganda Detection via Anti-persuasion Prompt Enhanced Contrastive Learning**. 
 
 More details and instructions coming soon!
 
-## Credits
+## Notes:
 
-TBA
+This article is a multi-label classification task with 22 labels. Our solution is to convert this task into 22 binary classification tasks. Here, we upload a model to detect the **"Name calling/Labeling"** category, and the code is basically consistent for other category detection models.
 
-## Citation
+## Dataset
 
-TBA
+The memes data of SemEval2021 task 6 is used as our experimental dataset.
+https://github.com/di-dimitrov/SEMEVAL-2021-task6-corpus
+
