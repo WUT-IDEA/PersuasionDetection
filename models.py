@@ -286,9 +286,6 @@ class MemeMultiLabelClassifier(nn.Module):
                 int_classes = ['1']
             else:
                 int_classes = ['0']
-#            for idx in enumerate(elem):
-#                if ids:
-#            int_classes.append(self.labels[elem])
             out_classes.append(int_classes)
         return out_classes
 
@@ -328,12 +325,10 @@ class MemeMultiLabelClassifier(nn.Module):
         logits_a = torch.abs(logits_aa)
 #        logits_aa = #logits_aa - masks1 * LARGE_NUM
 #        logits_ab = torch.matmul(hidden_img1, hidden_text1_large.transpose(0, 1)) / temperature  # shape (batch_size, batch_size)
-#        print(logits_aa)
         logits_bb = torch.matmul(hidden_img2, hidden_text2_large.transpose(0, 1)) / temperature  # shape (batch_size, batch_size)
         logits_b = torch.abs(logits_bb)
 #        logits_bb = logits_bb - masks2 * LARGE_NUM
 #        logits_ba = torch.matmul(hidden_img2, hidden_text2_large.transpose(0, 1)) / temperature  # shape (batch_size, batch_size)
-#        print(logits_bb)
 #        labels = torch.cat([labels1, labels2.long()])
 #        logits_a = torch.cat([logits_ab, logits_aa], dim=1)
 #        logits_b = torch.cat([logits_ba, logits_bb], dim=1)
@@ -342,15 +337,12 @@ class MemeMultiLabelClassifier(nn.Module):
 #        loss_b = torch.nn.functional.cross_entropy(torch.cat([logits_ba, logits_bb], dim=1), labels2.long())
 #        loss = loss_a + loss_b
         logits = torch.cat([logits_aa, logits_bb], dim=1)
-
-#        print(torch.cat([logits_aa, logits_bb], dim=1))
         return logits, labels #loss
 
     def forward(self, image, text1, text2, text_len1, text_len2, labels=None, return_probs=False, inference_threshold=0.5):
         if self.visual_enabled:
             with torch.set_grad_enabled(self.finetune_visual):
                 image_feats = self.visual_module(image)
-#                image_feats = torch.cat([image_feats1, image_feats1], 0)
 
         else:
             image_feats = None
@@ -360,9 +352,6 @@ class MemeMultiLabelClassifier(nn.Module):
             text_feats1 = self.textual_module(text1, text_len1)
             text_feats2 = self.textual_module(text2, text_len2)
             
-           # for i in range(text_feats.size()[0]):
-           #     print(text_feats[i][0][0])
-       # print(text_feats.size())
         contextualized_image_feature1, contextualized_text_feature1 = self.joint_processing_module(text_feats1, text_len1, image_feats)
         contextualized_image_feature2, contextualized_text_feature2 = self.joint_processing_module(text_feats2, text_len2, image_feats)
 
@@ -370,24 +359,13 @@ class MemeMultiLabelClassifier(nn.Module):
         
 
         if self.training:
-#            loss_sum = torch.zeros(contrastive_bs,1)
-#            loss = 0
-#            loss_sum = loss_sum.cuda()
-#            loss = loss.cuda()
-#            loss = self.loss(sims[1].unsqueeze(0), labels[1].unsqueeze(0).long())
-#            for i in range(sims.size()[1]):
-#                for j in range(sims.size()[0]):
-#                    loss_sum[i] = loss_sum[i] + sims[j][i]
-#                loss = loss + (sims[i][i]/loss_sum[i])
             sim, label = self._contrastive_loss_forward(contextualized_image_feature1, contextualized_text_feature1, contextualized_image_feature2, contextualized_text_feature2, labels, hidden_norm=False, temperature=0.5)
             loss = self.criterion(sim, label)
-#            print(loss)
             return loss/10
         else:
             # probs = F.sigmoid(class_logits)
             if return_probs:
                 return contextualized_image_feature1, contextualized_text_feature1, contextualized_image_feature2, contextualized_text_feature2
-#            print(probs)
             sim1 = torch.ones(contextualized_image_feature1.size()[0])
             sim2 = torch.ones(contextualized_image_feature1.size()[0])
             for j in range(contextualized_image_feature1.size()[0]):
